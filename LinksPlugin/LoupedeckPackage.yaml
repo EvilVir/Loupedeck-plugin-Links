@@ -1,0 +1,15 @@
+type: plugin4
+name: 'Links'
+displayName: 'Links'
+version: 1.0.0
+author: Strange Fog Studios
+copyright: Copyright (c) 2022 Strange Fog Studios
+license: MIT
+licenseUrl: https://opensource.org/licenses/MIT
+
+supportedDevices:
+  - LoupedeckCt
+  - LoupedeckLive
+
+pluginFileName: LinksPlugin.dll
+pluginFolderWin: ./bin/win/
