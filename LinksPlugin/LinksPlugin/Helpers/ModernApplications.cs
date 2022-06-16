@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 
@@ -12,19 +13,46 @@ namespace Loupedeck.LinksPlugin.Helpers
 		private static readonly PackageManager pkgManager = new PackageManager();
 
 		public static IEnumerable<(string Id, string Name)> GetApplications()
-			=> pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main)
+		{
+			try
+			{
+				return pkgManager.FindPackagesForUserWithPackageTypes(string.Empty, PackageTypes.Main)
 						  .Where(x => !string.IsNullOrEmpty(x.Id.FullName))
 						  .DistinctBy(x => x.Id.FullName)
 						  .Select(x => (x.Id.FullName, x.DisplayName))
 						  .OrderBy(x => x.DisplayName);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine("ERROR while enumerating modern applications: {0}", ex.Message);
+				return Enumerable.Empty<(string, string)>();
+			}
+		}
 
 		public static async void RunApplication(string packageFullName)
-			=> await pkgManager.FindPackageForUser(string.Empty, packageFullName)?.GetAppListEntries().FirstOrDefault()?.LaunchAsync();
+		{
+			try
+			{
+				await pkgManager.FindPackageForUser(string.Empty, packageFullName)?.GetAppListEntries().FirstOrDefault()?.LaunchAsync();
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine("ERROR while running modern application: {0}", ex.Message);
+			}
+		}
 
 		public static Bitmap GetIcon(string pathAndParams, PluginImageSize imageSize)
 		{
-			var (width, height) = imageSize.GetSize();
-			return GetIcon(pathAndParams, width, height);
+			try
+			{
+				var (width, height) = imageSize.GetSize();
+				return GetIcon(pathAndParams, width, height);
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine("ERROR while getting modern application icon: {0}", ex.Message);
+				return null;
+			}
 		}
 
 		public static Bitmap GetIcon(string packageFullName, int width, int height)

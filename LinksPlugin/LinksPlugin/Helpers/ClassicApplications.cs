@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.IconLib;
 using System.IO;
@@ -10,21 +11,28 @@ namespace Loupedeck.LinksPlugin.Helpers
 	{
 		public static void RunApplication(string pathAndParams)
 		{
-			var (path, parameters) = ParsePathAndParams(pathAndParams);
-
-			var process = new Process()
+			try
 			{
-				StartInfo = new ProcessStartInfo(path, parameters)
-				{
-					LoadUserProfile = true,
-					UseShellExecute = true
-				}
-			};
+				var (path, parameters, iconIndex) = ParsePathAndParams(pathAndParams);
 
-			process.Start();
+				var process = new Process()
+				{
+					StartInfo = new ProcessStartInfo(path, parameters)
+					{
+						LoadUserProfile = true,
+						UseShellExecute = true
+					}
+				};
+
+				process.Start();
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine("ERROR while running classic application: {0}", ex.Message);
+			}
 		}
 
-		private static (string ExecutablePath, string Parameters) ParsePathAndParams(string pathAndParams)
+		private static (string ExecutablePath, string Parameters, int iconIndex) ParsePathAndParams(string pathAndParams)
 		{
 			pathAndParams = pathAndParams.Trim();
 			var isQuoted = pathAndParams.StartsWith('"');
@@ -42,8 +50,15 @@ namespace Loupedeck.LinksPlugin.Helpers
 
 			var path = splitPoint > -1 ? pathAndParams.Substring(0, splitPoint) : pathAndParams;
 			var prms = splitPoint > -1 ? pathAndParams.Substring(splitPoint + 1) : null;
+			var iconIndex = 0;
 
-			return (path.Trim(), string.IsNullOrEmpty(prms) ? null : prms.Trim());
+			if (path.IndexOf(',') is int commaIdx && commaIdx > -1)
+			{
+				iconIndex = int.Parse(path.Substring(commaIdx + 1));
+				path = path.Substring(0, commaIdx);
+			}
+
+			return (path.Trim(), string.IsNullOrEmpty(prms) ? null : prms.Trim(), iconIndex);
 		}
 
 		public static Bitmap GetIcon(string pathAndParams, PluginImageSize imageSize)
@@ -54,18 +69,26 @@ namespace Loupedeck.LinksPlugin.Helpers
 
 		private static Bitmap GetIcon(string pathAndParams, int width, int height)
 		{
-			var (path, _) = ParsePathAndParams(pathAndParams);
-
-			switch (Path.GetExtension(path))
+			try
 			{
-				case ".exe":
-					return GetIconFromExe(path, width, height);
-				default:
-					return null;
+				var (path, _, iconIndex) = ParsePathAndParams(pathAndParams);
+
+				switch (Path.GetExtension(path))
+				{
+					case ".exe":
+						return GetIconFromExe(path, iconIndex, width, height);
+					default:
+						return null;
+				}
+			}
+			catch (Exception ex)
+			{
+				Debug.WriteLine("ERROR while getting classing application icon: {0}", ex.Message);
+				return null;
 			}
 		}
 
-		private static Bitmap GetIconFromExe(string path, int width, int height)
+		private static Bitmap GetIconFromExe(string path, int index, int width, int height)
 		{
 			var bitmap = new Bitmap(width, height);
 			using (var graphics = Graphics.FromImage(bitmap))
@@ -75,7 +98,7 @@ namespace Loupedeck.LinksPlugin.Helpers
 				var mi = new MultiIcon();
 				mi.Load(path);
 
-				if (mi.FirstOrDefault() is SingleIcon singleIcon && singleIcon.Any())
+				if (mi.Skip(index).FirstOrDefault() is SingleIcon singleIcon && singleIcon.Any())
 				{
 					var w = (int)(width * Constants.ICON_SCALE);
 					var h = (int)(height * Constants.ICON_SCALE);

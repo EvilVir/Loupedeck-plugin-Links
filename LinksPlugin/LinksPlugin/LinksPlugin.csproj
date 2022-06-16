@@ -103,5 +103,12 @@
       <Version>4.6.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Icons\Icon-16.png" />
+    <EmbeddedResource Include="Resources\Icons\Icon-256.png" />
+    <EmbeddedResource Include="Resources\Icons\Icon-32.png" />
+    <EmbeddedResource Include="Resources\Icons\Icon-48.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
