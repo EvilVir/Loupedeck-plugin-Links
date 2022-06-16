@@ -14,6 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       name: Checkout Code
+      
+    - name: Git Version
+      uses: codacy/git-version@2.4.0
 
     - uses: microsoft/setup-msbuild@v1.1
       name: setup-msbuild
@@ -21,7 +24,7 @@ jobs:
         msbuild-architecture: x64
        
     - name: Setup NuGet
-      uses: NuGet/setup-nuget@v1.0.2
+      uses: NuGet/setup-nuget@v1.0.6
      
     - name: Restore NuGet Packages
       run: nuget restore LinksPlugin/LinksPlugin.sln
@@ -29,8 +32,11 @@ jobs:
     - name: Build and Publish Web App
       run: msbuild LinksPlugin/LinksPlugin.sln /p:Configuration=Release
  
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v1.0.0
+    - name: Publish GitHub Release Artifacts
+      # You may pin to the exact commit or the version.
+      # uses: SierraSoftworks/gh-releases@937fb0f499a9a52bff9557bd5c3ddeea56d59917
+      uses: SierraSoftworks/gh-releases@v1.0.6
       with:
-        name: published_plugin
-        path: Installer/LinksPlugin.lplug4
+        token: secrets.GITHUB_TOKEN
+        files: |
+         - Installer/LinksPlugin.lplug4
