@@ -15,6 +15,11 @@ jobs:
     - uses: actions/checkout@v1
       name: Checkout Code
 
+    - name: Generate release tag
+      uses: amitsingh-007/next-release-tag@v1.0.0
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Setup MS Build
       uses: microsoft/setup-msbuild@v1.1
       with:
@@ -29,9 +34,11 @@ jobs:
     - name: Build and Publish
       run: msbuild LinksPlugin/LinksPlugin.sln /p:Configuration=Release
  
-    - name: Publish GitHub Release Artifacts
-      uses: SierraSoftworks/gh-releases@v1.0.6
+    - uses: "marvinpinto/action-automatic-releases@latest"
       with:
-        token: secrets.GITHUB_TOKEN
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: false
+        title: "${{ next_release_version }}"
         files: |
-         - Installer/LinksPlugin.lplug4
+          Installer/LinksPlugin.lplug4
