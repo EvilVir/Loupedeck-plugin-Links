@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\BitmapExtensions.cs" />
+    <Compile Include="Helpers\CacheHelper.cs" />
     <Compile Include="Helpers\ClassicApplications.cs" />
     <Compile Include="Helpers\Constants.cs" />
     <Compile Include="Helpers\ModernApplications.cs" />

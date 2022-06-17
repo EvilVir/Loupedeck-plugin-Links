@@ -21,7 +21,7 @@ namespace Loupedeck.LinksPlugin
 		}
 
 		protected override BitmapImage GetCommandImage(string actionParameter, PluginImageSize imageSize)
-			=> ModernApplications.GetIcon(actionParameter, imageSize).ToBitmapImage();
+			=> CacheHelper.GetIcon(actionParameter, () => ModernApplications.GetIcon(actionParameter, imageSize).ToBitmapImage());
 
 		protected override void RunCommand(string actionParameter)
 			=> ModernApplications.RunApplication(actionParameter);
