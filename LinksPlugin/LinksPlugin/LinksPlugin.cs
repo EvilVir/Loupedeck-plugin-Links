@@ -4,11 +4,16 @@ namespace Loupedeck.LinksPlugin
 
 	public class LinksPlugin : Plugin
 	{
+		public static string DataFolder;
+
 		public override bool HasNoApplication => true;
 		public override bool UsesApplicationApiOnly => true;
 
 		public override void Load()
 		{
+			DataFolder = this.GetPluginDataDirectory();
+			IoHelpers.EnsureDirectoryExists(DataFolder);
+
 			this.Info.Icon16x16 = EmbeddedResources.ReadImage("Loupedeck.LinksPlugin.Resources.Icons.Icon-16.png");
 			this.Info.Icon32x32 = EmbeddedResources.ReadImage("Loupedeck.LinksPlugin.Resources.Icons.Icon-32.png");
 			this.Info.Icon48x48 = EmbeddedResources.ReadImage("Loupedeck.LinksPlugin.Resources.Icons.Icon-48.png");
