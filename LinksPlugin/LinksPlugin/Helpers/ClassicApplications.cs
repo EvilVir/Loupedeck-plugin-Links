@@ -93,7 +93,7 @@ namespace Loupedeck.LinksPlugin.Helpers
 		private static Bitmap GetIconFromLnk(string path, int index, int width, int height)
 		{
 			var lnk = Lnk.Lnk.LoadFile(path);
-			var icoPath = Environment.ExpandEnvironmentVariables(lnk.IconLocation);
+			var icoPath = Environment.ExpandEnvironmentVariables(lnk.IconLocation ?? lnk.LocalPath);
 
 			switch (Path.GetExtension(icoPath))
 			{
@@ -121,6 +121,10 @@ namespace Loupedeck.LinksPlugin.Helpers
 				var ordered = singleIcon.OrderByDescending(x => x.Size.Width).ThenByDescending(x => x.Size.Height);
 				var selected = ordered.Where(x => x.Size.Width <= w && x.Size.Height <= h).FirstOrDefault() ?? ordered.First();
 				icon = selected.Icon;
+			}
+			else
+			{
+				icon = Icon.ExtractAssociatedIcon(path);
 			}
 
 			return CreateButtonIcon(icon, width, height);
